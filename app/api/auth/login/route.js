@@ -49,6 +49,7 @@ export async function POST(req) {
 
     // Generate the JWT token
     const token = JWTService.sign({ userId: user.id });
+    console.log('JWT token generated successfully for user:', user.email);
 
     // Set the cookie
     cookies().set('mycrudapp', token, {
@@ -64,11 +65,12 @@ export async function POST(req) {
       message: 'Login successful.',
     });
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error('Error during login:', error); // Log the error
+    const errorMessage = process.env.NODE_ENV !== 'production' ? error.message : 'Internal server error.';
     return NextResponse.json(
       {
-        success: false,
-        message: 'Internal server error.',
+          success: false,
+          message: errorMessage, // Return error message
       },
       { status: 500 }
     );
