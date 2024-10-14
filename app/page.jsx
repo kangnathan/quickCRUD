@@ -1,4 +1,3 @@
-// /page.js
 'use client'
 import HomeClient from "./home/page";
 import RegisterForm from "../components/RegisterForm";
@@ -7,14 +6,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; // Use environment variable
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await fetch(`${baseUrl}/api/user`); // Change to /api/name
-      const userData = res.ok ? await res.json() : null;
-      setUser(userData);
+      try {
+        const res = await fetch(`${baseUrl}/api/user`);
+        const userData = res.ok ? await res.json() : null;
+        setUser(userData);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUser(null);
+      }
     };
     
     fetchUser();
