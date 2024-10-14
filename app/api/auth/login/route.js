@@ -69,8 +69,8 @@ export async function POST(req) {
     const errorMessage = process.env.NODE_ENV !== 'production' ? error.message : 'Internal server error.';
     return NextResponse.json(
       {
-          success: false,
-          message: errorMessage, // Return error message
+        success: false,
+        message: errorMessage, // Return error message
       },
       { status: 500 }
     );
