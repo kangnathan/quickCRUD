@@ -13,44 +13,37 @@ export async function POST(req) {
   try {
     const formData = await req.json();
 
-    const ourUser = {
-      emailOrUsername: formData.emailOrUsername || '',
-      password: formData.password || '',
-    };
+    // Destructure and trim user credentials
+    const { emailOrUsername = '', password = '' } = formData;
+    const trimmedEmailOrUsername = emailOrUsername.trim();
+    const trimmedPassword = password.trim();
 
     // Validate input
-    if (
-      typeof ourUser.emailOrUsername !== 'string' ||
-      typeof ourUser.password !== 'string' ||
-      ourUser.emailOrUsername.trim() === '' ||
-      ourUser.password.trim() === ''
-    ) {
+    if (!trimmedEmailOrUsername || !trimmedPassword) {
+      console.error('Validation failed: missing email/username or password');
       return NextResponse.json(failObject, { status: 400 });
     }
-
-    ourUser.emailOrUsername = ourUser.emailOrUsername.trim();
-    ourUser.password = ourUser.password.trim();
 
     // Find user by either email or username
     const user = await prisma.user.findFirst({
       where: {
         OR: [
-          { email: ourUser.emailOrUsername },
-          { name: ourUser.emailOrUsername },
+          { email: trimmedEmailOrUsername },
+          { name: trimmedEmailOrUsername },
         ],
       },
     });
 
     if (!user) {
-      console.error('User not found');
+      console.error('User not found for:', trimmedEmailOrUsername);
       return NextResponse.json(failObject, { status: 401 });
     }
 
     // Compare passwords securely
-    const passwordMatch = await bcrypt.compare(ourUser.password, user.password);
+    const passwordMatch = await bcrypt.compare(trimmedPassword, user.password);
 
     if (!passwordMatch) {
-      console.error('Password does not match');
+      console.error('Password mismatch for user:', user.email);
       return NextResponse.json(failObject, { status: 401 });
     }
 
